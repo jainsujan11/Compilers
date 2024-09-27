@@ -32,7 +32,7 @@
 %token <cValue> CONSTANT_CHAR
 %token <sValue> LITERAL
 
-%type <node> augmented_start translation_unit external_declaration function_definition declaration_list_opt declaration_list
+%type <node> translation_unit external_declaration function_definition declaration_list_opt declaration_list
 %type <node> declaration_specifiers declaration init_declarator_list_opt init_declarator_list init_declarator
 %type <node> constant primary_expression postfix_expression argument_expression_list_opt argument_expression_list
 %type <node> unary_expression unary_operator cast_expression multiplicative_expression additive_expression
@@ -49,7 +49,7 @@
 %nonassoc PARANTHESIS_CLOSE
 %nonassoc ELSE
 
-%start augmented_start
+%start translation_unit
 
 %%
 
@@ -1372,25 +1372,17 @@ jump_statement:
     }
     ;
 
-// Augmenting the grammar for correct start 
-augmented_start:
-    translation_unit {
-        $$ = createNode("augmented_start");
-        addChild($$, $1);
-        root = $$;
-    }
-    ;
 translation_unit:
     external_declaration {
         $$ = createNode("translation_unit");
         addChild($$, $1);
-        
+        root = $$;
     }
     | translation_unit external_declaration {
         $$ = createNode("translation_unit");
         addChild($$, $1);
         addChild($$, $2);
-        
+        root = $$;
     }
     ;
 
