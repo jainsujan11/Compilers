@@ -95,17 +95,17 @@ NEW_LINE        \n
 {CONSTANT_CHAR}             {yylval.cValue = *strdup(yytext) ;return CONSTANT_CHAR;}
 {LITERAL}                   {yylval.sValue = strdup(yytext) ;return LITERAL;}
 {WHITE_SPACE}               {}
-{NEW_LINE}                   {printf("\n----------- Parsing Line Number %d -----------\n", yylineno);}
+{NEW_LINE}                   {}
 
 "//"                        {BEGIN(SINGLE_LINE_COMM);}
 <SINGLE_LINE_COMM>.         {}
-<SINGLE_LINE_COMM>\n        {BEGIN(INITIAL); printf("\n----------- Parsing Line Number %d -----------\n\n\n", yylineno);}
+<SINGLE_LINE_COMM>\n        {BEGIN(INITIAL);}
 <SINGLE_LINE_COMM><<EOF>>   {BEGIN(INITIAL);}
 
 "/*"                        {BEGIN(MULTI_LINE_COMM);}
 <MULTI_LINE_COMM>"*/"       {BEGIN(INITIAL);}
 <MULTI_LINE_COMM>.          {}
-<MULTI_LINE_COMM>\n         {printf("\n----------- Parsing Line Number %d -----------\n\n\n", yylineno);}
+<MULTI_LINE_COMM>\n         {}
 
 "("                         {return PARANTHESIS_OPEN;}
 ")"                         {return PARANTHESIS_CLOSE;}

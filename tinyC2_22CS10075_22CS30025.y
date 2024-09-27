@@ -8,9 +8,6 @@
     extern char *yytext;
     extern TreeNode *root;
     void yyerror(char *s);
-    // TreeNode* createNode(char *);
-    // void addChild(TreeNode*, TreeNode*);
-    // void printParseTree(TreeNode*, int);
 %}
 
 %union {
