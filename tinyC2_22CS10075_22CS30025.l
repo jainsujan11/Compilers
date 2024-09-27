@@ -1,5 +1,7 @@
 %{
     #include "y.tab.h"
+    void yyerror(const char *s);  
+    int yylex();   
 %}
 
 
@@ -51,7 +53,6 @@ NEW_LINE        \n
 
 %%
 "auto"                      {return AUTO;}
-"enum"                      {return ENUM;}
 "restrict"                  {return RESTRICT;}
 "unsigned"                  {return UNSIGNED;}
 "break"                     {return BREAK;}
