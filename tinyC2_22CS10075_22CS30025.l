@@ -5,7 +5,6 @@
 %}
 
 
-/* For bison to get line number */
 %option yylineno
 
 
@@ -35,7 +34,7 @@ C_CHAR          [^'\\\n]|{ESCAPE_SEQUENCE}
 
 
 CONSTANT_CHAR   \'{C_CHAR}\'
-/*CONSTANT        {CONSTANT_INT}|{CONSTANT_FLOAT}|{CONSTANT_CHAR}*/
+
 
 
 
@@ -107,12 +106,12 @@ NEW_LINE        \n
 <MULTI_LINE_COMM>.          {}
 <MULTI_LINE_COMM>\n         {}
 
-"("                         {return PARANTHESIS_OPEN;}
-")"                         {return PARANTHESIS_CLOSE;}
-"["                         {return SQ_BRACKET_OPEN;}
-"]"                         {return SQ_BRACKET_CLOSE;}
-"{"                         {return CURLY_BRACKET_OPEN;}
-"}"                         {return CURLY_BRACKET_CLOSE;}
+"("                         {return LP;}
+")"                         {return RP;}
+"["                         {return SQ_BRACKET_L;}
+"]"                         {return SQ_BRACKET_R;}
+"{"                         {return CURLY_BRACKET_L;}
+"}"                         {return CURLY_BRACKET_R;}
 "."                         {return PERIOD;}
 "->"                        {return ARROW;}
 "++"                        {return INCREMENT;}
@@ -143,8 +142,8 @@ NEW_LINE        \n
 ";"                         {return SEMICOLON;}
 "..."                       {return ELLIPSIS;}
 "="                         {return ASSIGN;}
-"*="                        {return MULTIPLY_ASSIGN;}
-"/="                        {return DIVIDE_ASSIGN;}
+"*="                        {return MUL_ASSIGN;}
+"/="                        {return DIV_ASSIGN;}
 "%="                        {return MOD_ASSIGN;}
 "+="                        {return ADD_ASSIGN;}
 "-="                        {return MINUS_ASSIGN;}
