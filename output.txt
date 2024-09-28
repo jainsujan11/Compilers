@@ -1,5 +1,0 @@
-
------------ Parsing Line Number 1 -----------
-ERROR: syntax error
-		 at line: 1
-	near " 5 "

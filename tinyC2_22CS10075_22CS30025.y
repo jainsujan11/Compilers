@@ -8,9 +8,6 @@
     extern char *yytext;
     extern TreeNode *root;
     void yyerror(char *s);
-    // TreeNode* createNode(char *);
-    // void addChild(TreeNode*, TreeNode*);
-    // void printParseTree(TreeNode*, int);
 %}
 
 %union {
@@ -23,11 +20,11 @@
 
 %token AUTO RESTRICT UNSIGNED BREAK EXTERN RETURN VOID CASE FLOAT SHORT VOLATILE CHAR FOR SIGNED WHILE CONST GOTO SIZEOF BOOL CONTINUE IF STATIC COMPLEX DEFAULT INLINE STRUCT IMAGINARY DO INT SWITCH DOUBLE LONG TYPEDEF ELSE REGISTER UNION INVALID_TOKEN
 
-%token PARANTHESIS_OPEN PARANTHESIS_CLOSE SQ_BRACKET_OPEN SQ_BRACKET_CLOSE CURLY_BRACKET_OPEN CURLY_BRACKET_CLOSE
+%token LP RP SQ_BRACKET_L SQ_BRACKET_R CURLY_BRACKET_L CURLY_BRACKET_R
 %token PERIOD ARROW INCREMENT DECREMENT AMPERSAND ASTERISK PLUS MINUS TILDE EXCLAMATION SLASH PERCENT
 %token LEFT_SHIFT RIGHT_SHIFT LESS_THAN GREATER_THAN LESS_THAN_EQUAL GREATER_THAN_EQUAL EQUAL NOT_EQUAL CARET PIPE
 %token LOGICAL_AND LOGICAL_OR QUESTION COLON SEMICOLON ELLIPSIS
-%token ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN MOD_ASSIGN PLUS_ASSIGN MINUS_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN ADD_ASSIGN XOR_ASSIGN OR_ASSIGN COMMA HASH
+%token ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN PLUS_ASSIGN MINUS_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN ADD_ASSIGN XOR_ASSIGN OR_ASSIGN COMMA HASH
 
 %token <sValue> IDENTIFIER
 %token <iValue> CONSTANT_INT
@@ -35,7 +32,7 @@
 %token <cValue> CONSTANT_CHAR
 %token <sValue> LITERAL
 
-%type <node> augmented_start translation_unit external_declaration function_definition declaration_list_opt declaration_list
+%type <node> translation_unit external_declaration function_definition declaration_list_opt declaration_list
 %type <node> declaration_specifiers declaration init_declarator_list_opt init_declarator_list init_declarator
 %type <node> constant primary_expression postfix_expression argument_expression_list_opt argument_expression_list
 %type <node> unary_expression unary_operator cast_expression multiplicative_expression additive_expression
@@ -49,10 +46,10 @@
 %type <node> identifier_list_opt parameter_type_list parameter_list parameter_declaration identifier_list pointer type_qualifier_list_opt
 %type <node> expression_statement expression_opt declaration_specifiers_opt type_qualifier declarator assignment_expression_opt type_qualifier_list
 
-%nonassoc PARANTHESIS_CLOSE
+%nonassoc RP
 %nonassoc ELSE
 
-%start augmented_start
+%start translation_unit
 
 %%
 
@@ -95,7 +92,7 @@ primary_expression:
         TreeNode *valueNode = createNode($1); 
         addChild($$, valueNode);
     }
-    | PARANTHESIS_OPEN expression PARANTHESIS_CLOSE {
+    | LP expression RP {
         $$ = createNode("primary_expression");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -110,7 +107,7 @@ postfix_expression:
         $$ = createNode("postfix_expression");
         addChild($$, $1);
     }
-    | postfix_expression SQ_BRACKET_OPEN expression SQ_BRACKET_CLOSE {
+    | postfix_expression SQ_BRACKET_L expression SQ_BRACKET_R {
         $$ = createNode("postfix_expression");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -119,7 +116,7 @@ postfix_expression:
         addChild($$, $3);
         addChild($$, closeSq);
     }
-    | postfix_expression PARANTHESIS_OPEN argument_expression_list_opt PARANTHESIS_CLOSE {
+    | postfix_expression LP argument_expression_list_opt RP {
         $$ = createNode("postfix_expression");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -155,6 +152,34 @@ postfix_expression:
         TreeNode *decrement = createNode("--");
         addChild($$, $1);
         addChild($$, decrement);
+    }
+    | LP type_name RP CURLY_BRACKET_L initializer_list CURLY_BRACKET_R {
+        $$ = createNode("postfix_expression");
+        TreeNode *openPar = createNode("(");
+        TreeNode *closePar = createNode(")");
+        TreeNode *braceOpen = createNode("{");
+        TreeNode *braceClose = createNode("}");
+        addChild($$, openPar);
+        addChild($$, $2);
+        addChild($$, closePar);
+        addChild($$, braceOpen);
+        addChild($$, $5);
+        addChild($$, braceClose);
+    }
+    | LP type_name RP CURLY_BRACKET_L initializer_list COMMA CURLY_BRACKET_R {
+        $$ = createNode("postfix_expression");
+        TreeNode *openPar = createNode("(");
+        TreeNode *closePar = createNode(")");
+        TreeNode *braceOpen = createNode("{");
+        TreeNode *comma = createNode(",");
+        TreeNode *braceClose = createNode("}");
+        addChild($$, openPar);
+        addChild($$, $2);
+        addChild($$, closePar);
+        addChild($$, braceOpen);
+        addChild($$, $5);
+        addChild($$, comma);
+        addChild($$, braceClose);
     }
     ;
 
@@ -212,7 +237,7 @@ unary_expression:
         addChild($$, sizeOf);
         addChild($$, $2);
     }
-    | SIZEOF PARANTHESIS_OPEN type_name PARANTHESIS_CLOSE {
+    | SIZEOF LP type_name RP {
         $$ = createNode("unary_expression");
         TreeNode *sizeOf = createNode("sizeof");
         TreeNode *openPar = createNode("(");
@@ -262,7 +287,7 @@ cast_expression:
         $$ = createNode("cast_expression");
         addChild($$, $1);
     }
-    | PARANTHESIS_OPEN type_name PARANTHESIS_CLOSE cast_expression {
+    | LP type_name RP cast_expression {
         $$ = createNode("cast_expression");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -505,12 +530,12 @@ assignment_operator:
         TreeNode *assign = createNode("=");
         addChild($$, assign);
     }
-    | MULTIPLY_ASSIGN {
+    | MUL_ASSIGN {
         $$ = createNode("assignment_operator");
         TreeNode *multiplyAssign = createNode("*=");
         addChild($$, multiplyAssign);
     }
-    | DIVIDE_ASSIGN {
+    | DIV_ASSIGN {
         $$ = createNode("assignment_operator");
         TreeNode *divideAssign = createNode("/=");
         addChild($$, divideAssign);
@@ -826,7 +851,7 @@ direct_declarator:
         TreeNode *idNode = createNode($1);
         addChild($$, idNode);
     }
-    | PARANTHESIS_OPEN declarator PARANTHESIS_CLOSE {
+    | LP declarator RP {
         $$ = createNode("direct_declarator");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -834,7 +859,7 @@ direct_declarator:
         addChild($$, $2);
         addChild($$, closePar);
     }
-    | direct_declarator SQ_BRACKET_OPEN type_qualifier_list_opt assignment_expression_opt SQ_BRACKET_CLOSE {
+    | direct_declarator SQ_BRACKET_L type_qualifier_list_opt assignment_expression_opt SQ_BRACKET_R {
         $$ = createNode("direct_declarator");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -844,7 +869,7 @@ direct_declarator:
         addChild($$, $4);
         addChild($$, closeSq);
     }
-    | direct_declarator SQ_BRACKET_OPEN STATIC type_qualifier_list_opt assignment_expression SQ_BRACKET_CLOSE {
+    | direct_declarator SQ_BRACKET_L STATIC type_qualifier_list_opt assignment_expression SQ_BRACKET_R {
         $$ = createNode("direct_declarator");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -856,7 +881,7 @@ direct_declarator:
         addChild($$, $5);
         addChild($$, closeSq);
     }
-    | direct_declarator SQ_BRACKET_OPEN type_qualifier_list STATIC assignment_expression SQ_BRACKET_CLOSE {
+    | direct_declarator SQ_BRACKET_L type_qualifier_list STATIC assignment_expression SQ_BRACKET_R {
         $$ = createNode("direct_declarator");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -868,7 +893,7 @@ direct_declarator:
         addChild($$, $5);
         addChild($$, closeSq);
     }
-    | direct_declarator SQ_BRACKET_OPEN type_qualifier_list_opt ASTERISK SQ_BRACKET_CLOSE {
+    | direct_declarator SQ_BRACKET_L type_qualifier_list_opt ASTERISK SQ_BRACKET_R {
         $$ = createNode("direct_declarator");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -879,7 +904,7 @@ direct_declarator:
         addChild($$, asterisk);
         addChild($$, closeSq);
     }
-    | direct_declarator PARANTHESIS_OPEN parameter_type_list PARANTHESIS_CLOSE {
+    | direct_declarator LP parameter_type_list RP {
         $$ = createNode("direct_declarator");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -888,7 +913,7 @@ direct_declarator:
         addChild($$, $3);
         addChild($$, closePar);
     }
-    | direct_declarator PARANTHESIS_OPEN identifier_list_opt PARANTHESIS_CLOSE {
+    | direct_declarator LP identifier_list_opt RP {
         $$ = createNode("direct_declarator");
         TreeNode *openPar = createNode("(");
         TreeNode *closePar = createNode(")");
@@ -1032,7 +1057,7 @@ initializer:
         $$ = createNode("initializer");
         addChild($$, $1);
     }
-    | CURLY_BRACKET_OPEN initializer_list CURLY_BRACKET_CLOSE {
+    | CURLY_BRACKET_L initializer_list CURLY_BRACKET_R {
         $$ = createNode("initializer");
         TreeNode *openBrace = createNode("{");
         TreeNode *closeBrace = createNode("}");
@@ -1040,7 +1065,7 @@ initializer:
         addChild($$, $2);
         addChild($$, closeBrace);
     }
-    | CURLY_BRACKET_OPEN initializer_list COMMA CURLY_BRACKET_CLOSE {
+    | CURLY_BRACKET_L initializer_list COMMA CURLY_BRACKET_R {
         $$ = createNode("initializer");
         TreeNode *openBrace = createNode("{");
         TreeNode *closeBrace = createNode("}");
@@ -1102,7 +1127,7 @@ designator_list:
     ;
 
 designator:
-    SQ_BRACKET_OPEN constant_expression SQ_BRACKET_CLOSE {
+    SQ_BRACKET_L constant_expression SQ_BRACKET_R {
         $$ = createNode("designator");
         TreeNode *openSq = createNode("[");
         TreeNode *closeSq = createNode("]");
@@ -1175,7 +1200,7 @@ labeled_statement:
     ;
 
 compound_statement:
-    CURLY_BRACKET_OPEN block_item_list_opt CURLY_BRACKET_CLOSE {
+    CURLY_BRACKET_L block_item_list_opt CURLY_BRACKET_R {
         $$ = createNode("compound_statement");
         TreeNode *openBrace = createNode("{");
         TreeNode *closeBrace = createNode("}");
@@ -1242,7 +1267,7 @@ expression_opt:
     ;
 
 selection_statement:
-    IF PARANTHESIS_OPEN expression PARANTHESIS_CLOSE statement {
+    IF LP expression RP statement {
         $$ = createNode("selection_statement");
         TreeNode *ifNode = createNode("if");
         TreeNode *openPar = createNode("(");
@@ -1253,7 +1278,7 @@ selection_statement:
         addChild($$, closePar);
         addChild($$, $5);
     }
-    | IF PARANTHESIS_OPEN expression PARANTHESIS_CLOSE statement ELSE statement {
+    | IF LP expression RP statement ELSE statement {
         $$ = createNode("selection_statement");
         TreeNode *ifNode = createNode("if");
         TreeNode *openPar = createNode("(");
@@ -1267,7 +1292,7 @@ selection_statement:
         addChild($$, elseNode);
         addChild($$, $7);
     }
-    | SWITCH PARANTHESIS_OPEN expression PARANTHESIS_CLOSE statement {
+    | SWITCH LP expression RP statement {
         $$ = createNode("selection_statement");
         TreeNode *switchNode = createNode("switch");
         TreeNode *openPar = createNode("(");
@@ -1281,7 +1306,7 @@ selection_statement:
     ;
 
 iteration_statement:
-    WHILE PARANTHESIS_OPEN expression PARANTHESIS_CLOSE statement {
+    WHILE LP expression RP statement {
         $$ = createNode("iteration_statement");
         TreeNode *whileNode = createNode("while");
         TreeNode *openPar = createNode("(");
@@ -1292,7 +1317,7 @@ iteration_statement:
         addChild($$, closePar);
         addChild($$, $5);
     }
-    | DO statement WHILE PARANTHESIS_OPEN expression PARANTHESIS_CLOSE SEMICOLON {
+    | DO statement WHILE LP expression RP SEMICOLON {
         $$ = createNode("iteration_statement");
         TreeNode *doNode = createNode("do");
         TreeNode *whileNode = createNode("while");
@@ -1307,7 +1332,7 @@ iteration_statement:
         addChild($$, closePar);
         addChild($$, semicolon);
     }
-    | FOR PARANTHESIS_OPEN expression_opt SEMICOLON expression_opt SEMICOLON expression_opt PARANTHESIS_CLOSE statement {
+    | FOR LP expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RP statement {
         $$ = createNode("iteration_statement");
         TreeNode *forNode = createNode("for");
         TreeNode *openPar = createNode("(");
@@ -1324,7 +1349,7 @@ iteration_statement:
         addChild($$, closePar);
         addChild($$, $9);
     }
-    | FOR PARANTHESIS_OPEN declaration expression_opt SEMICOLON expression_opt PARANTHESIS_CLOSE statement {
+    | FOR LP declaration expression_opt SEMICOLON expression_opt RP statement {
         $$ = createNode("iteration_statement");
         TreeNode *forNode = createNode("for");
         TreeNode *openPar = createNode("(");
@@ -1375,25 +1400,17 @@ jump_statement:
     }
     ;
 
-// Augmenting the grammar for correct start 
-augmented_start:
-    translation_unit {
-        $$ = createNode("augmented_start");
-        addChild($$, $1);
-        root = $$;
-    }
-    ;
 translation_unit:
     external_declaration {
         $$ = createNode("translation_unit");
         addChild($$, $1);
-        
+        root = $$;
     }
     | translation_unit external_declaration {
         $$ = createNode("translation_unit");
         addChild($$, $1);
         addChild($$, $2);
-        
+        root = $$;
     }
     ;
 

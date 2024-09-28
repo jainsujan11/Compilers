@@ -5,47 +5,37 @@
 #include "header.h"
 extern int yyparse();
 TreeNode* root = NULL; 
+// Function to create a new node
 TreeNode* createNode(char *symbol) {
     TreeNode *node = (TreeNode *) malloc(sizeof(TreeNode));
     node->symbol = strdup(symbol);  
-    
-    node->children = NULL;  // Initially, there are no children
-    node->numChildren = 0;  // Set the number of children to 0
-    
-    return node;  // Return the newly created node
+    node->children = NULL; 
+    node->numChildren = 0;  
+    return node;  
 }
 
 // Function to add a child node to an existing parent node
 void addChild(TreeNode *parent, TreeNode *child) {
-    if (parent == NULL || child == NULL) return;  // Check for null parent or child
-
-    // Reallocate memory to increase the size of the children array by 1
-    parent->children = (TreeNode **) realloc(parent->children, (parent->numChildren + 1) * sizeof(TreeNode *));
-    
-    // Add the new child to the array
-    parent->children[parent->numChildren] = child;
-    
-    // Increment the count of children in the parent node
+    if (parent == NULL || child == NULL) return; 
+    parent->children = (TreeNode **) realloc(parent->children, (parent->numChildren + 1) * sizeof(TreeNode *));    
+    parent->children[parent->numChildren] = child;    
     parent->numChildren++;
 }
-// Function to recursively print the parse tree (with indentation)
+
+// Function to print the parse tree
 void printParseTree(TreeNode *node, int indent) {
-    if (node == NULL) return;  // Check for null node
-
-    // Print the current node with the appropriate indentation
+    if (node == NULL) return; 
     for (int i = 0; i < indent; i++) {
-        printf("  ");  // Indentation
+        printf("  ");  
     }
-    printf("%s\n", node->symbol);  // Print the symbol of the current node
-
-    // Recursively print each child node
+    printf("└── %s\n", node->symbol);
     for (int i = 0; i < node->numChildren; i++) {
-        printParseTree(node->children[i], indent + 1);  // Increase the indentation for children
+        printParseTree(node->children[i], indent + 1);  
     }
 }
 
 int main() {
-    printf("\n----------- Parsing Line Number 1 -----------\n");
+    printf("----------- Parse Tree -----------\n");
     yyparse();
     printParseTree(root, 0);
     return 0;
