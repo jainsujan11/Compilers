@@ -1,163 +1,136 @@
 %{
-    #include "y.tab.h"
-    void yyerror(const char *s);  
-    int yylex();   
+#include "TinyC3_22CS10075_22CS30025_translator.h"
+#include "TinyC3_22CS10075_22CS30025.tab.h"
+
+#include <stdlib.h>
+#include <iostream>
+
+extern YYSTYPE yylval;
+extern "C" int yylex();
 %}
 
+/* Regular Expressions Definitions */
+IDENTIFIER     [a-zA-Z_][a-zA-Z0-9_]*
+INT_CONST      [1-9][0-9]*|[0]
+STRING_LITERAL \"(\\.|[^"\\])*\"
+FLOATING_CONST [0-9]+[eE][+-]?[0-9]+|[0-9]*\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+\.([eE][+-]?[0-9]+)?
+CHAR_CONST     \'("\'"|"\""|"\?"|"\\"|"\a"|"\b"|"\f"|"\n"|"\r"|"\t"|"\v"|[^\'\\\n])*\'
+WS             [ \t]
+%x CMT_LINE
+%x CMT_BLK
 
-%option yylineno
-
-
-%x SINGLE_LINE_COMM
-%x MULTI_LINE_COMM
-
-
-IDENTIFIER_NONDIGIT     [a-zA-Z_]
-DIGIT           [0-9]
-IDENTIFIER      {IDENTIFIER_NONDIGIT}({IDENTIFIER_NONDIGIT}|{DIGIT})*
-
-
-/*Constants start here*/
-
-CONSTANT_INT    {SIGN}?{DIGIT}+
-
-DIG_SEQ         {DIGIT}+
-CONSTANT_FRAC   {SIGN}?{DIG_SEQ}?\.{DIG_SEQ}|{DIG_SEQ}\.
-SIGN            [+-]
-EXPONENT        [eE]{SIGN}?{DIG_SEQ}
-CONSTANT_FLOAT  {CONSTANT_FRAC}{EXPONENT}?|{DIG_SEQ}{EXPONENT}
-
-
-ESCAPE_SEQUENCE      \\\\|\\['"?banftrv] 
-C_CHAR          [^'\\\n]|{ESCAPE_SEQUENCE}
-
-
-
-CONSTANT_CHAR   \'{C_CHAR}\'
-
-
-
-
-/*Constants finished here*/
-
-S_CHAR          [^"\\\n]|{ESCAPE_SEQUENCE}
-S_CHAR_SEQ      {S_CHAR}+
-LITERAL         \"{S_CHAR_SEQ}?\"
-
-
-/* Whitespace recognition */
-WHITE_SPACE     [ \t]
-NEW_LINE        \n
-
-
-%%
-"auto"                      {return AUTO;}
-"restrict"                  {return RESTRICT;}
-"unsigned"                  {return UNSIGNED;}
-"break"                     {return BREAK;}
-"extern"                    {return EXTERN;}
-"return"                    {return RETURN;}
-"void"                      {return VOID;}
-"case"                      {return CASE;}
-"float"                     {return FLOAT;}
-"short"                     {return SHORT;}
-"volatile"                  {return VOLATILE;}
-"char"                      {return CHAR;}
-"for"                       {return FOR;}
-"signed"                    {return SIGNED;}
-"while"                     {return WHILE;}
-"const"                     {return CONST;}
-"goto"                      {return GOTO;}
-"sizeof"                    {return SIZEOF;}
-"_Bool"                     {return BOOL;}
-"continue"                  {return CONTINUE;}
-"if"                        {return IF;}
-"static"                    {return STATIC;}
-"_Complex"                  {return COMPLEX;}
-"default"                   {return DEFAULT;}
-"inline"                    {return INLINE;}
-"struct"                    {return STRUCT;}
-"_Imaginary"                {return IMAGINARY;}
-"do"                        {return DO;}
-"int"                       {return INT;}
-"switch"                    {return SWITCH;}
-"double"                    {return DOUBLE;}
-"long"                      {return LONG;}
-"typedef"                   {return TYPEDEF;}
-"else"                      {return ELSE;}
-"register"                  {return REGISTER;}
-"union"                     {return UNION;}
-
-{IDENTIFIER}                {yylval.sValue = strdup(yytext); return IDENTIFIER;}
-{CONSTANT_INT}              {yylval.iValue = atoi(yytext) ;return CONSTANT_INT;}
-{CONSTANT_FLOAT}            {yylval.fValue = atof(yytext); return CONSTANT_FLOAT;}
-{CONSTANT_CHAR}             {yylval.cValue = *strdup(yytext) ;return CONSTANT_CHAR;}
-{LITERAL}                   {yylval.sValue = strdup(yytext) ;return LITERAL;}
-{WHITE_SPACE}               {}
-{NEW_LINE}                   {}
-
-"//"                        {BEGIN(SINGLE_LINE_COMM);}
-<SINGLE_LINE_COMM>.         {}
-<SINGLE_LINE_COMM>\n        {BEGIN(INITIAL);}
-<SINGLE_LINE_COMM><<EOF>>   {BEGIN(INITIAL);}
-
-"/*"                        {BEGIN(MULTI_LINE_COMM);}
-<MULTI_LINE_COMM>"*/"       {BEGIN(INITIAL);}
-<MULTI_LINE_COMM>.          {}
-<MULTI_LINE_COMM>\n         {}
-
-"("                         {return LP;}
-")"                         {return RP;}
-"["                         {return SQ_BRACKET_L;}
-"]"                         {return SQ_BRACKET_R;}
-"{"                         {return CURLY_BRACKET_L;}
-"}"                         {return CURLY_BRACKET_R;}
-"."                         {return PERIOD;}
-"->"                        {return ARROW;}
-"++"                        {return INCREMENT;}
-"--"                        {return DECREMENT;}
-","                         {return COMMA;}
-"&"                         {return AMPERSAND;}
-"*"                         {return ASTERISK;}
-"+"                         {return PLUS;}
-"-"                         {return MINUS;}
-"~"                         {return TILDE;}
-"!"                         {return EXCLAMATION;}
-"/"                         {return SLASH;}
-"%"                         {return PERCENT;}
-"<<"                        {return LEFT_SHIFT;}
-">>"                        {return RIGHT_SHIFT;}
-"<"                         {return LESS_THAN;}
-">"                         {return GREATER_THAN;}
-"<="                        {return LESS_THAN_EQUAL;}
-">="                        {return GREATER_THAN_EQUAL;}
-"=="                        {return EQUAL;}
-"!="                        {return NOT_EQUAL;}
-"^"                         {return CARET;}
-"|"                         {return PIPE;}
-"&&"                        {return LOGICAL_AND;}
-"||"                        {return LOGICAL_OR;}
-"?"                         {return QUESTION;}
-":"                         {return COLON;}
-";"                         {return SEMICOLON;}
-"..."                       {return ELLIPSIS;}
-"="                         {return ASSIGN;}
-"*="                        {return MUL_ASSIGN;}
-"/="                        {return DIV_ASSIGN;}
-"%="                        {return MOD_ASSIGN;}
-"+="                        {return ADD_ASSIGN;}
-"-="                        {return MINUS_ASSIGN;}
-"<<="                       {return LEFT_SHIFT_ASSIGN;}
-">>="                       {return RIGHT_SHIFT_ASSIGN;}
-"&="                        {return AND_ASSIGN;}
-"^="                        {return XOR_ASSIGN;}
-"|="                        {return OR_ASSIGN;}
-"#"                         {return HASH;}
-.                           { printf("ERROR [Line %d] : Invalid token %s\n", yylineno, yytext); return INVALID_TOKEN; }
+/* Definitions of Rules and Actions */
 
 %%
 
+"//"               BEGIN(CMT_LINE);
+"/*"               BEGIN(CMT_BLK);
+<CMT_LINE>[^\n]    ;
+<CMT_LINE>\n       BEGIN(INITIAL);
+<CMT_BLK>[^*]      ;
+<CMT_BLK>"*"+[^*/] ;
+<CMT_BLK>"*"+"/"   BEGIN(INITIAL);
+"sizeof"         { return SIZEOF; }
+"extern"         { return EXTERN; }
+"static"         { return STATIC; }
+"auto"           { return AUTO; }
+"register"       { return REGISTER; }
+"void"           { return VOID; }
+"char"           { return CHAR; }
+"short"          { return SHORT; }
+"int"            { return INT; }
+"long"           { return LONG; }
+"float"          { return FLOAT; }
+"double"         { return DOUBLE; }
+"signed"         { return SIGNED; }
+"unsigned"       { return UNSIGNED; }
+"_Bool"          { return BOOL; }
+"_Complex"       { return COMPLEX; }
+"_Imaginary"     { return IMAGINARY; }
+"enum"           { return ENUM; }
+"const"          { return CONST; }
+"restrict"       { return RESTRICT; }
+"volatile"       { return VOLATILE; }
+"inline"         { return INLINE; }
+"case"           { return CASE; }
+"default"        { return DEFAULT; }
+"if"             { return IF; }
+"else"           { return ELSE; }
+"switch"         { return SWITCH; }
+"while"          { return WHILE; }
+"do"             { return DO; }
+"for"            { return FOR; }
+"goto"           { return GOTO; }
+"continue"       { return CONTINUE; }
+"break"          { return BREAK; }
+"return"         { return RETURN; }
 
-int yywrap(void) {
-    return 1;
-}
+{INT_CONST}      { yylval.intval = atoi(yytext);
+                   return INT_CONST; 
+                 }
+
+{FLOATING_CONST} { yylval.string_type = yytext;
+                   return FLOATING_CONST; 
+                 }
+
+{CHAR_CONST}     { yylval.string_type = yytext;
+                   return CHAR_CONST; 
+                 }
+
+{STRING_LITERAL} { yylval.string_type = yytext;
+                   return STRING_LITERAL; 
+                 }
+
+{IDENTIFIER}     { 
+                   yylval.st_entry = ST->lookup(yytext);
+                   return IDENTIFIER; 
+                 }
+                 
+"("              { return OPEN_PARENTHESIS; }
+")"              { return CLOSE_PARENTHESIS; }
+"{"              { return OPEN_BRACE; }
+"}"              { return CLOSE_BRACE; }
+"["              { return OPEN_BRACKET; }
+"]"              { return CLOSE_BRACKET; }
+"+"              { return PLUS; }
+"-"              { return MINUS; }
+","              { return COMMA; }
+"*"              { return STAR; }
+"/"              { return SLASH; }
+"%"              { return MOD; }
+"+="             { return ADD_ASSGN; }
+"-="             { return SUB_ASSGN; }
+"*="             { return MUL_ASSGN; }
+"/="             { return DIV_ASSGN; }
+"%="             { return MOD_ASSGN; }
+"=="             { return EQUAL; }
+"!="             { return NOT_EQUAL; }
+"<"              { return LESS; }
+">"              { return GREATER; }
+"<="             { return LESS_EQUAL; }
+">="             { return GREATER_EQUAL; }
+"++"             { return INCREMENT; }
+"--"             { return DECREMENT; }
+"&"              { return B_AND; }
+"|"              { return B_OR; }
+"&&"             { return L_AND; }
+"||"             { return L_OR; }
+"^"              { return B_XOR; }
+"&="             { return AND_ASSGN; }
+"|="             { return OR_ASSGN; }
+"^="             { return XOR_ASSGN; }
+"<<"             { return L_SHIFT; }
+">>"             { return R_SHIFT; }
+"<<="            { return L_SHIFT_ASSGN; }
+">>="            { return R_SHIFT_ASSGN; }
+"="              { return ASSGN; }
+"~"              { return TILDE; }
+"!"              { return EXCLAM; }
+"."              { return DOT; }
+"->"             { return POINTER_DEREF; }
+":"              { return COLON; }
+";"              { return SEMI_COLON; }
+"?"              { return QUESTION ; }
+{WS}             ;
+
+%%

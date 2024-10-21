@@ -1,147 +1,214 @@
-#ifndef __TRANSLATOR_H
-#define __TRANSLATOR_H
-#include <iostream>
+#ifndef _TRANSLATOR_H_
+#define _TRANSLATOR_H_
+
+#define SIZE_OF_CHAR    1
+#define SIZE_OF_INT     4
+#define SIZE_OF_FLOAT   8
+#define SIZE_OF_POINTER 4
+
+#include <string> 
 #include <vector>
-#include <list>
-using namespace std;
+#include <iostream>
+#include <map> 
+#include <cmath>
 
-/* Sizes for data types as changeable parameters as specified in the assignment*/
-#define sizeof_void 0
-#define sizeof_char 1
-#define sizeof_int 4
-#define sizeof_float 8
-#define sizeof_pointer 4
 
-/* Forward declarations. */
-class symbol;       // Symbol Table Record
-class symbolType;   // Type of a symbol
-class symbolTable;  // Symbol Table
-class quad;         // Quad to store TAC
-class quadArray;    // List of Quads
 
-/* Global Variables */
-extern symbol* currentSymbol;           // Points to current symbol
-extern symbolTable* currentSymbolTable; // Points to current symbol table
-extern symbolTable* globalSymbolTable;  // Points to global symbol table
-extern quadArray quadTable;             // Points to quad table
-extern int SymbolTableCount;            // Count of symbol tables
-extern string blockName;                // Name of current block
+// Declarations of all classes to avoid any conflicts
+class SymbolType;
+class Symbol;
+class Symboltable;
+class SymtabStack;
+class Quad;
+class QuadArray;
+class Label;
 
-/* Lex objects */
-extern int yyparse();
+
 extern char* yytext;
+extern int yyparse();
 
-class symbol {
-    public:
-    string name;        // Name of symbol
-    symbolType* type;   // Type of symbol
-    string initValue;   // Initial value of symbol
-    int size;           // Size of symbol
-    int offset;         // Offset of symbol
-    symbolTable* nestedTable;  // Nested symbol table if symbol is a function/record
 
-    // Methods
-    symbol(string name_, string type_ = "int", symbolType* arrType = NULL, int width = 0); // Constructor
-    symbol* update(symbolType* t);  // Update type of symbol to t
+extern QuadArray Q;             // The program array of quads
+extern Symboltable *ST;          // The current symbol table
+extern char * variable_type;    // Stores the variable type (int, char, float)
+extern Symbol *curr_symbol;     // The current Symbol being pointed to in the table
+extern long long int table_count;  // denotes count of nested tables
+extern SymtabStack STS;         // Stores all the symbol tables
+extern int yydebug;
+
+// The type of an object in the symbol table defined in a recursive manner
+class SymbolType {
+public:
+    std::string name;       // Type name
+    int size;               // Size of the current type
+    SymbolType * next;      // Pointer to the type deeper in the recursive tree
+    SymbolType(std::string _name, int _size = 1, SymbolType * _next = nullptr);
+    std::string getType();// Print the type depicting the string
+    void printType();
+    int getSize();          // Get the total size 
 };
 
-
-class symbolType {
-    public:
-    string base;           // Base type of symbol
-    int width;             // Width of symbol, 1 by default. Size for arrays
-    symbolType* arrType;   // Array type of symbol
-
-    symbolType(string base_, symbolType* arrType_ = NULL, int width_ = 1); // Constructor
-};
-
-class symbolTable {
-    public:
-    string name;            // Name of symbol table
-    int count;              // Count of symbols in symbol table
+// A symbol which is an entry of the symbol table
+class Symbol {
+public:
+    std::string name;           // Name of the symbol (string)
+    SymbolType * type;          // Type of the symbol (can be a list e.g. arr(10, arr(10, int)) )
+    std::string initial_value;  // Initial value of the symbol
+    int size;                   // Size of the symbol 
+    int offset;                 // Offset of the symbol
+    Symboltable * nested_table; // Pointer to the nested symbol table
+    std::string scope;          // Scope of the symbol (local, temporary or parameter)
+    Symbol(std::string name);
+    Symbol(std::string name, 
+        std::string type, 
+        std::string initval = "", 
+        int width = 0, 
+        Symboltable * nested_table = nullptr);        // Make new entry
     
-    // using inbuilt list to store symbols 
-    
-    list<symbol> table;     // List of symbols in symbol table
-    symbolTable* parent;    // Parent symbol table
+    void update (SymbolType *);                       // Change the type
 
-    symbolTable(string name_ = "NULL");  // Constructor
-
-    symbol* lookup(string name);    // Lookup for symbol in symbol table
-    static symbol* gentemp(symbolType* type_, string initValue_ = ""); // Generate temporary symbol
-    void update();  // Update offset of symbols in symbol table
-    void print();   // Print symbol table
 };
 
+// The symboltable which is a list of symbols
+class Symboltable{
+public:
+    std::vector<Symbol *> symbols;        // The symbols in the symbol table
+    std::string name;                   // Name of the symbol table
+    Symboltable * parent;               // Parent table of the symbol table
+    Symboltable(std::string _name, Symboltable * _parent = nullptr);    // New symbol table
+    Symboltable();                      // Empty constructor
+    Symbol * lookup(std::string id);     // Lookup a given symbol using name
+    Symbol * gentemp(SymbolType *);      // Generate a new temporary and insert it into the symbol table
+    void print();                        // Print the symbol table
+    void update();                       // Update the symbol table
+    Symbol * check_parent(std::string id); // Check the parents for ths id
+};
 
- 
-class quad {
+// The Stack of the Symboltables on which the search will be carried out
+class SymtabStack {
+private:
+    std::vector<Symboltable *> tables;
+public:
+    inline SymtabStack() {temp_count = 0;}
+    long long int temp_count;
+    Symboltable * current();    
+    Symboltable * global ();    // First symbol table
+    void updateCurrent (Symboltable * newST); // Update current symbol table
+    inline void add (Symboltable * st) {
+        this->tables.push_back(st);
+    }
+    Symboltable * search(std::string _name);
+    void print(); // Prints all symbol tables
+};
+
+// Definition of the Quad
+class Quad {
+public:
+    std::string res;                    // Result
+    std::string op;                     // Opcode
+    std::string arg1;                   // Argument 1
+    std::string arg2;                   // Argument 2
+
+public:
+    // Constructor
+    Quad (std::string _res, std::string _op, std::string _arg1 = "", std::string _arg2 = "");
+    void print();                       // Print the quad
+    void set_res(std::string _res);     // Set the result (used in backpatching)
+};
+
+// Definition of the Quad Array
+class QuadArray {
+public:
+    std::vector<Quad *> quads;            // All the quads stored in the array
+    void insert (Quad *q);               // Insert a quad into the quad array
+    void print();                       // Print all the quads
+};
+
+// Static emit functions which emit quads
+void emit (std::string _res, std::string _op, std::string _arg1 = "", std::string _arg2 = "");
+void emit (std::string _res, std::string _op, int _arg1, std::string _arg2 = "");
+void emit (std::string _res, std::string _op, float _arg1, std::string _arg2 = "");
+
+
+// The Label Class for label symbols
+class Label {
     public:
-    string opcode; // Opcode of quad
-    string arguement1;  // First argument of quad
-    string arguement2;  // Second argument of quad
-    string result; // Result of quad
-
-    quad(string res_, string arg1_, string op_ = "=", string arg2_ = ""); // Constructor for string argument
-    quad(string res_, int arg1_, string op_ = "=", string arg2_ = ""); // Constructor for int argument
-    quad(string res_, float arg1_, string op_ = "=", string arg2_ = ""); // Constructor for float argument
-
-    void print();   // Print quad
+        std::string name;                    // Name of the label
+        int addr;                       // Address the label is pointing to 
+        std::vector <int> nextlist;          // All the dangling goto statements
+        Label (std::string _name, int address = -1, std::vector <int> nextlist = std::vector<int>(0)); // Constructor
+        
 };
 
-class quadArray{
-    public:
-    vector <quad> array;    // Vector of quads
-    void print();  // Print quad array
+// Expressions
+struct Expression {
+    Symbol * loc;                       // Pointer to the symbol table entry
+    std::string type;                   // Type of the expression
+    std::vector <int> nextlist;         // Nextlist for statement expressions
+    std::vector <int> truelist;         // Truelist for boolean expressions
+    std::vector <int> falselist;        // Falselist for boolean expressions
+
 };
 
-// Method to add a new quad.
-void emit(string opcode, string res, string arg1 = "", string arg2 = ""); // String type arg
-void emit(string opcode, string res, int arg1, string arg2 = ""); // Int type arg
-void emit(string opcode, string res, float arg1, string arg2 = ""); // Float type arg
-
-
-
-// Array class for arrays and pointers
-class A {
-    public:
-    string arrType; // Type of array. arr or ptr
-    symbol* addr;   // Base symbol of array in Symbol Table
-    symbol* location; // To get address of array
-    symbolType* type;   // Type of array stored in symbol table
+//Statement Block
+struct Next {
+    std::vector <int> nextlist;              // Dangling exit nextlist
 };
 
-// Statement class for statements
-class S {
-    public:
-    list <int> nextList;    // List of nexts
+// Arrays in Expression
+struct Array {
+    Symbol * loc;   // Location of the temporary used to compute indices
+    Symbol * array; // Array location (array.base) in the symbol table
+    SymbolType * type; // Type of the subarray generated by Array
+    std::string variety; // Arr or *
 };
 
-// Expression class for expressions
-class E {
-    public:
-    string exprType;    // Type of expression. bool or not_bool
-    symbol* addr; // Base symbol of expression in Symbol Table
-    list <int> trueList;    // List of statements for true
-    list <int> falseList;   // List of statements for false
-    list <int> nextList;    // List of nexts
-};
+// Global Functions
+// Gentemp function, to generate a temporary and add it to the given
+// symbol table and return an address to the symbol
+Symbol * gentemp (Symboltable * s, SymbolType * type = new SymbolType("int"));
 
-/* GLOBAL FUNCTIONS */
-list<int> makelist(int i); // Make a new list with i as the only element, index of current quad
-list<int> merge(list<int> &p1, list <int> &p2); // Merge two lists, return merged list
-void backpatch(list<int> p, int i); // Backpatch list p with i, update quad array
-bool typecheck(symbolType* t1, symbolType* t2); // Check if types t1 and t2 are compatible (called by typecheck(symbol, symbol) to check types of symbols and compatible types)
-symbol* convType(symbol* s, string t); // Convert type of symbol s to t, which calls
+/* makelist : Create a new list comprising only i and return a pointer
+ * to the newly created list */
+std::vector <int> makelist (int i);
+// merge: Merge two lists p1 and p2 and return a pointer to the merged list
+std::vector <int> merge (std::vector <int> &p1, std::vector <int> &p2);
+// backpatch: Insert i as the target label for each quads on the list pointed to by p
+void backpatch (std::vector <int> &p, int i);
 
-/* HELPER FUNCTIONS */
-bool typecheck(symbol* &s1, symbol* &s2); // Check if types of symbols s1 and s2 are compatible
-string convIntToStr(int n); // Convert int to string
-string convFloatToStr(float f); // Convert float to string
-E* convIntToBool(E* e); // Convert int to bool
-E* convBoolToInt(E* e); // Convert bool to int
-void switchTable(symbolTable* newTable); // Switch to new symbol table
-int nextinstr(); // Return index of next quad
-int sizeOfType(symbolType* t); // Return size of type t
-string printType(symbolType* t); // Return string representation of type t
-#endif
+// Typecheck and conversion functions
+void typecheck (Expression &E1, Expression &E2);
+
+// Conversion of int and float to string
+std::string conv_int2string (int a);
+std::string conv_float2string (float a);
+// Conversion of string to float and int
+inline int conv_string2int (std::string s) {return s == "" ? 0: stoi(s);}
+inline float conv_string2float (std::string s) {return s == "" ? 0: stof(s);}
+// Convert integer to float by multiplying by 1.0
+inline float conv_int2float (int a) {return a * 1.0;}
+// Convert float to int by taking the floor of the floating point value. 
+inline int conv_float2int (float a) {return floor(a);}
+
+// Integer to Boolean conversion in Conditional Expressions
+void conv_int2bool (Expression &E);
+void conv_float2bool (Expression &E);
+void conv_char2bool (Expression &E);
+void conv_bool2int (Expression &E);
+
+void conv_int2float(Expression &E);
+void conv_char2int(Expression &E);
+
+// Compare and convert between symbol types and Symbols
+int compare(SymbolType *s1, SymbolType *s2);
+int compare(Symbol * &s1, Symbol * &s2);
+std::pair<Symbol *,bool> convert(Symbol *S1, std::string new_type);
+
+// Next instruction address
+int nextinstr();
+Label * find_label(std::string _str);
+void updateSymbolTable(Symboltable *_new);
+
+void printspaces(int n);
+std::string getspaces(int n);
+#endif // _TRANSLATOR_H_
