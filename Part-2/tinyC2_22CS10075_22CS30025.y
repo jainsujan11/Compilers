@@ -24,7 +24,7 @@
 %token PERIOD ARROW INCREMENT DECREMENT AMPERSAND ASTERISK PLUS MINUS TILDE EXCLAMATION SLASH PERCENT
 %token LEFT_SHIFT RIGHT_SHIFT LESS_THAN GREATER_THAN LESS_THAN_EQUAL GREATER_THAN_EQUAL EQUAL NOT_EQUAL CARET PIPE
 %token LOGICAL_AND LOGICAL_OR QUESTION COLON SEMICOLON ELLIPSIS
-%token ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN PLUS_ASSIGN MINUS_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN ADD_ASSIGN XOR_ASSIGN OR_ASSIGN COMMA HASH
+%token ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN MINUS_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN XOR_ASSIGN OR_ASSIGN COMMA HASH
 
 %token <sValue> IDENTIFIER
 %token <iValue> CONSTANT_INT
@@ -545,7 +545,7 @@ assignment_operator:
         TreeNode *modAssign = createNode("%=");
         addChild($$, modAssign);
     }
-    | PLUS_ASSIGN {
+    | ADD_ASSIGN {
         $$ = createNode("assignment_operator");
         TreeNode *plusAssign = createNode("+=");
         addChild($$, plusAssign);
@@ -1461,4 +1461,5 @@ declaration_list:
 %%
 void yyerror(char *s) {
     printf("ERROR: %s\n\t\t at line: %d\n\tnear \" %s \"\n", s, yylineno, yytext);
+    exit(1);
 }

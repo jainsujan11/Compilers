@@ -10,7 +10,7 @@ lex.yy.c: tinyC2_22CS10075_22CS30025.l
 	lex tinyC2_22CS10075_22CS30025.l
 
 run: a.out
-	./a.out < input_22CS10075_22CS30025.c > output_22CS10075_22CS30025.txt
+	./a.out < small_input_22CS10075_22CS30025.c > output_22CS10075_22CS30025.txt
 
 clean:
 	rm -f a.out y.tab.c y.tab.h lex.yy.c output_22CS10075_22CS30025.txt
