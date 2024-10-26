@@ -2,7 +2,7 @@
     #include "TinyC3_22CS10075_22CS30025_translator.h"
     #include "TinyC3_22CS10075_22CS30025.tab.h"
     extern YYSTYPE yylval;
-    int yylex();
+    extern "C" int yylex();
 %}
 
 
@@ -105,51 +105,53 @@ NEW_LINE        \n
 <MULTI_LINE_COMM>\n         {}
 
                  
-"("              { return OPEN_PARENTHESIS; }
-")"              { return CLOSE_PARENTHESIS; }
-"{"              { return OPEN_BRACE; }
-"}"              { return CLOSE_BRACE; }
-"["              { return OPEN_BRACKET; }
-"]"              { return CLOSE_BRACKET; }
-"+"              { return PLUS; }
-"-"              { return MINUS; }
-","              { return COMMA; }
-"*"              { return STAR; }
-"/"              { return SLASH; }
-"%"              { return MOD; }
-"+="             { return ADD_ASSGN; }
-"-="             { return SUB_ASSGN; }
-"*="             { return MUL_ASSGN; }
-"/="             { return DIV_ASSGN; }
-"%="             { return MOD_ASSGN; }
-"=="             { return EQUAL; }
-"!="             { return NOT_EQUAL; }
-"<"              { return LESS; }
-">"              { return GREATER; }
-"<="             { return LESS_EQUAL; }
-">="             { return GREATER_EQUAL; }
-"++"             { return INCREMENT; }
-"--"             { return DECREMENT; }
-"&"              { return B_AND; }
-"|"              { return B_OR; }
-"&&"             { return L_AND; }
-"||"             { return L_OR; }
-"^"              { return B_XOR; }
-"&="             { return AND_ASSGN; }
-"|="             { return OR_ASSGN; }
-"^="             { return XOR_ASSGN; }
-"<<"             { return L_SHIFT; }
-">>"             { return R_SHIFT; }
-"<<="            { return L_SHIFT_ASSGN; }
-">>="            { return R_SHIFT_ASSGN; }
-"="              { return ASSGN; }
-"~"              { return TILDE; }
-"!"              { return EXCLAM; }
-"."              { return DOT; }
-"->"             { return POINTER_DEREF; }
-":"              { return COLON; }
-";"              { return SEMI_COLON; }
-"?"              { return QUESTION ; }
+"("                         {return LP;}
+")"                         {return RP;}
+"["                         {return SQ_BRACKET_L;}
+"]"                         {return SQ_BRACKET_R;}
+"{"                         {return CURLY_BRACKET_L;}
+"}"                         {return CURLY_BRACKET_R;}
+"."                         {return PERIOD;}
+"->"                        {return ARROW;}
+"++"                        {return INCREMENT;}
+"--"                        {return DECREMENT;}
+","                         {return COMMA;}
+"&"                         {return AMPERSAND;}
+"*"                         {return ASTERISK;}
+"+"                         {return PLUS;}
+"-"                         {return MINUS;}
+"~"                         {return TILDE;}
+"!"                         {return EXCLAMATION;}
+"/"                         {return SLASH;}
+"%"                         {return PERCENT;}
+"<<"                        {return LEFT_SHIFT;}
+">>"                        {return RIGHT_SHIFT;}
+"<"                         {return LESS_THAN;}
+">"                         {return GREATER_THAN;}
+"<="                        {return LESS_THAN_EQUAL;}
+">="                        {return GREATER_THAN_EQUAL;}
+"=="                        {return EQUAL;}
+"!="                        {return NOT_EQUAL;}
+"^"                         {return CARET;}
+"|"                         {return PIPE;}
+"&&"                        {return LOGICAL_AND;}
+"||"                        {return LOGICAL_OR;}
+"?"                         {return QUESTION;}
+":"                         {return COLON;}
+";"                         {return SEMICOLON;}
+"..."                       {return ELLIPSIS;}  
+"="                         {return ASSIGN;}
+"*="                        {return MUL_ASSIGN;}
+"/="                        {return DIV_ASSIGN;}
+"%="                        {return MOD_ASSIGN;}
+"+="                        {return ADD_ASSIGN;}
+"-="                        {return MINUS_ASSIGN;}
+"<<="                       {return LEFT_SHIFT_ASSIGN;}
+">>="                       {return RIGHT_SHIFT_ASSIGN;}
+"&="                        {return AND_ASSIGN;}
+"^="                        {return XOR_ASSIGN;}
+"|="                        {return OR_ASSIGN;}
+"#"                         {return HASH;}  
 .                { printf("ERROR [Line %d] : Invalid token %s\n", yylineno, yytext); return INVALID_TOKEN; }
 %%
 
