@@ -19,14 +19,23 @@ extern char * variable_type;      // Global variable which controls the type of 
       Next * statement_entry;
       Expression * exp_entry;
       SymbolType * s_type;
-      const char * u_op;
+      char * u_op;
 }
 
-%token SIZEOF OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE OPEN_BRACKET CLOSE_BRACKET MINUS PLUS COMMA STAR SLASH MOD LESS GREATER INCREMENT DECREMENT LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL B_AND B_OR L_AND L_OR B_XOR ADD_ASSGN SUB_ASSGN MUL_ASSGN DIV_ASSGN MOD_ASSGN L_SHIFT R_SHIFT L_SHIFT_ASSGN R_SHIFT_ASSGN ASSGN TILDE EXCLAM DOT POINTER_DEREF COLON SEMI_COLON QUESTION AND_ASSGN OR_ASSGN XOR_ASSGN EXTERN STATIC AUTO REGISTER VOID CHAR SHORT INT LONG FLOAT DOUBLE SIGNED UNSIGNED BOOL COMPLEX IMAGINARY ENUM CONST RESTRICT VOLATILE INLINE CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+%token AUTO RESTRICT UNSIGNED BREAK EXTERN RETURN VOID CASE FLOAT SHORT VOLATILE CHAR FOR SIGNED WHILE CONST GOTO SIZEOF BOOL CONTINUE IF STATIC COMPLEX DEFAULT INLINE STRUCT IMAGINARY DO INT SWITCH DOUBLE LONG TYPEDEF ELSE REGISTER UNION INVALID_TOKEN
+
+%token LP RP SQ_BRACKET_L SQ_BRACKET_R CURLY_BRACKET_L CURLY_BRACKET_R
+%token PERIOD ARROW INCREMENT DECREMENT AMPERSAND ASTERISK PLUS MINUS TILDE EXCLAMATION SLASH PERCENT
+%token LEFT_SHIFT RIGHT_SHIFT LESS_THAN GREATER_THAN LESS_THAN_EQUAL GREATER_THAN_EQUAL EQUAL NOT_EQUAL CARET PIPE
+%token LOGICAL_AND LOGICAL_OR QUESTION COLON SEMICOLON ELLIPSIS
+%token ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN PLUS_ASSIGN MINUS_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN ADD_ASSIGN XOR_ASSIGN OR_ASSIGN COMMA HASH
+
+
+%token SIZEOF OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE OPEN_BRACKET CLOSE_BRACKET MINUS PLUS COMMA STAR SLASH MOD LESS GREATER INCREMENT DECREMENT LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL B_AND B_OR L_AND L_OR B_XOR ADD_ASSGN SUB_ASSGN MUL_ASSGN DIV_ASSGN MOD_ASSGN L_SHIFT R_SHIFT L_SHIFT_ASSGN R_SHIFT_ASSGN ASSGN TILDE EXCLAM DOT POINTER_DEREF COLON SEMI_COLON QUESTION AND_ASSGN OR_ASSGN XOR_ASSGN EXTERN STATIC AUTO REGISTER VOID CHAR SHORT INT LONG FLOAT DOUBLE SIGNED UNSIGNED BOOL COMPLEX IMAGINARY CONST RESTRICT VOLATILE INLINE CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
 %token <st_entry> IDENTIFIER
-%token <intval> INT_CONST
-%token <string_type> STRING_LITERAL FLOATING_CONST CHAR_CONST
+%token <intval> CONSTANT_INT
+%token <string_type> LITERAL CONSTANT_FLOAT CONSTANT_CHAR
 
 %start translation_unit 
 
@@ -84,8 +93,6 @@ extern char * variable_type;      // Global variable which controls the type of 
 
 // dangling else problem
 %right "then" ELSE
-
-
 
 %%
 
@@ -166,28 +173,28 @@ primary_expression: IDENTIFIER
                         $$->type = "int";
                   }
 
-                  | INT_CONST
+                  | CONSTANT_INT
                   { 
                         $$ = new Expression();
                         $$->loc = ST->gentemp(new SymbolType("int"));
                         $$->loc->initial_value = conv_int2string($1);
                         emit("=",$$->loc->name, $$->loc->initial_value);
                   }
-                  | FLOATING_CONST
+                  | CONSTANT_FLOAT
                   {
                         $$ = new Expression();
                         $$->loc = ST->gentemp(new SymbolType("float"));
                         $$->loc->initial_value = string($1);
                         emit("=", $$->loc->name, $$->loc->initial_value);
                   }
-                  | CHAR_CONST 
+                  | CONSTANT_CHAR 
                   {
                         $$ = new Expression();
                         $$->loc = ST->gentemp(new SymbolType("char"));
                         $$->loc->initial_value = string($1);
                         emit("=", $$->loc->name, $$->loc->initial_value);
                   }
-                  | STRING_LITERAL
+                  | LITERAL
                   { 
                         $$ = new Expression();
                         $$->loc = ST->gentemp(new SymbolType("ptr"));
@@ -896,7 +903,6 @@ type_specifier: VOID
               | BOOL { }
               | COMPLEX { }
               | IMAGINARY { }
-              | enum_specifier { }
               ;
 
 specifier_qualifier_list: type_specifier specifier_qualifier_list_opt
@@ -909,22 +915,11 @@ specifier_qualifier_list_opt: %empty { }
                             | specifier_qualifier_list { }
                             ;
 
-enum_specifier: ENUM identifier_opt OPEN_BRACE enumerator_list CLOSE_BRACE { }
-              | ENUM identifier_opt OPEN_BRACE enumerator_list COMMA CLOSE_BRACE { }
-              | ENUM IDENTIFIER { }
-              ;
-
 identifier_opt: %empty { }
               | IDENTIFIER { }
               ;
               
-enumerator_list: enumerator { }                  
-               | enumerator_list COMMA enumerator { }                   
-               ;
 
-enumerator: IDENTIFIER { }
-          | IDENTIFIER ASSGN constant_expression { }
-          ;
 
 type_qualifier: CONST { }
               | RESTRICT { }
