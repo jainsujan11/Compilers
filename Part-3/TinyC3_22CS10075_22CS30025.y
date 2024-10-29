@@ -7,7 +7,7 @@
 	extern "C" int yylex();
 	void yyerror(string s);
 	extern vector<Label> label_table; // The collection of all label vectors
-	extern char * variable_type;      // Global variable which controls the type of the most recent identifier
+	extern string variable_type;      // Global variable which controls the type of the most recent identifier
 %}
 
 %union
@@ -392,7 +392,14 @@ cast_expression: unary_expression
 					// If Cast type is given, generate a symbol of 
 					// new type
 					$$ = new Array();
-					$$->array->update(new SymbolType(variable_type));
+					// use pair<Symbol *, bool> convert(Symbol *s, std::string type) this function
+					pair<Symbol *, bool> c = convert($4->array, variable_type);
+					if (c.second) {
+						$$->array = c.first;
+					}
+					else {
+						yyerror("AssignmentError: Conversion between incompatible types");
+					}
 			}
 			;
 
@@ -882,16 +889,16 @@ storage_class_specifier: EXTERN { }
 					;
 
 type_specifier: VOID
-			{ variable_type = (char *)"void"; }
+			{ variable_type = string("void"); }
 				
 			| CHAR
-			{ variable_type = (char *)"char"; }                   
+			{ variable_type = string("char"); }                   
 				
 			| INT
-			{ variable_type = (char *)"int"; }     
+			{ variable_type = string("int"); }     
 				
 			| FLOAT
-			{ variable_type = (char *)"float"; }
+			{ variable_type = string("float");}
 			
 			| LONG { }
 			| SHORT { }

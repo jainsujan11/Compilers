@@ -1,0 +1,181 @@
+
+
+PRINTING ALL SYMBOL TABLES
+Number of Symbol Tables: 5
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ST Name         : Global
+	ST Parent       : null
+	ST Symbol Count : 20
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Name                           Type                           Initial Value                    Size     Offset          Scope         Nested Table                
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+pi                             float                          3.14159265                       8        0               local         null                        
+_t0                            float                          3.14159265                       8        8               temp          null                        
+grade                          char                           'A'                              1        16              local         null                        
+number1                        int                            null                             4        17              local         null                        
+number2                        int                            null                             4        21              local         null                        
+result1                        int                            null                             4        25              local         null                        
+result2                        int                            null                             4        29              local         null                        
+quotient                       int                            null                             4        33              local         null                        
+remainder                      int                            null                             4        37              local         null                        
+myArray                        arr(5, int)                    null                             20       41              local         null                        
+_t1                            int                            5                                4        61              temp          null                        
+matrix                         arr(3, arr(3, float))          null                             72       65              local         null                        
+_t2                            int                            3                                4        137             temp          null                        
+_t3                            int                            3                                4        141             temp          null                        
+age                            int                            30                               4        145             local         null                        
+_t4                            int                            30                               4        149             temp          null                        
+ptr                            ptr(int)                       null                             4        153             local         null                        
+temperature                    int                            null                             4        157             local         null                        
+printMessage                   func                           null                             0        161             local         printMessage                
+main                           func                           null                             0        161             local         main                        
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ST Name         : printMessage
+	ST Parent       : Global
+	ST Symbol Count : 3
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Name                           Type                           Initial Value                    Size     Offset          Scope         Nested Table                
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+num                            int                            null                             4        0               parameter     null                        
+val                            float                          null                             8        4               parameter     null                        
+printMessage.$0                block                          null                             0        12              local         printMessage.$0             
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ST Name         : printMessage.$0
+	ST Parent       : printMessage
+	ST Symbol Count : 3
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Name                           Type                           Initial Value                    Size     Offset          Scope         Nested Table                
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+_t5                            int                            42                               4        0               temp          null                        
+_t6                            int                            null                             4        4               temp          null                        
+_t7                            float                          null                             8        8               temp          null                        
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ST Name         : main
+	ST Parent       : Global
+	ST Symbol Count : 1
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Name                           Type                           Initial Value                    Size     Offset          Scope         Nested Table                
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+main.$0                        block                          null                             0        0               local         main.$0                     
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ST Name         : main.$0
+	ST Parent       : main
+	ST Symbol Count : 22
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Name                           Type                           Initial Value                    Size     Offset          Scope         Nested Table                
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+apples                         int                            10                               4        0               local         null                        
+_t8                            int                            10                               4        4               temp          null                        
+bananas                        int                            3                                4        8               local         null                        
+_t9                            int                            3                                4        12              temp          null                        
+initial                        char                           'M'                              1        16              local         null                        
+_t10                           char                           'M'                              1        17              temp          null                        
+_t11                           char                           'A'                              1        18              temp          null                        
+_t12                           int                            null                             4        19              temp          null                        
+_t13                           int                            null                             4        23              temp          null                        
+_t14                           int                            null                             4        27              temp          null                        
+_t15                           int                            null                             4        31              temp          null                        
+_t16                           int                            null                             4        35              temp          null                        
+_t17                           int                            null                             4        39              temp          null                        
+_t18                           char                           'B'                              1        43              temp          null                        
+_t19                           int                            null                             4        44              temp          null                        
+_t20                           char                           null                             1        48              temp          null                        
+_t21                           int                            2                                4        49              temp          null                        
+_t22                           int                            null                             4        53              temp          null                        
+_t23                           int                            1                                4        57              temp          null                        
+_t24                           int                            null                             4        61              temp          null                        
+_t25                           func                           null                             0        65              temp          null                        
+_t26                           int                            0                                4        65              temp          null                        
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+PRINTING ALL QUADS
+
+------------------TAC-----------------
+   0 : _t0 = 3.14159265
+   1 : pi = _t0
+   2 : _t1 = 5
+   3 : _t2 = 3
+   4 : _t3 = 3
+   5 : _t4 = 30
+   6 : age = _t4
+   7 : printMessage: 
+   8 : printMessage.$0: 
+   9 : _t5 = 42
+  10 : _t6 = num + _t5
+  11 : _t7 = int2float(_t6)
+  12 : val = _t7
+  13 : return 
+  14 : funcend printMessage
+  15 : main: 
+  16 : main.$0: 
+  17 : _t8 = 10
+  18 : apples = _t8
+  19 : _t9 = 3
+  20 : bananas = _t9
+  21 : _t10 = 'M'
+  22 : initial = _t10
+  23 : _t11 = 'A'
+  24 : grade = _t11
+  25 : _t12 = apples + bananas
+  26 : number1 = _t12
+  27 : _t13 = apples - bananas
+  28 : number2 = _t13
+  29 : _t14 = apples * bananas
+  30 : result1 = _t14
+  31 : _t15 = apples / bananas
+  32 : result2 = _t15
+  33 : _t16 = apples % bananas
+  34 : quotient = _t16
+  35 : _t17 = apples & bananas
+  36 : remainder = _t17
+  37 : _t18 = 'B'
+  38 : _t19 = grade | _t18
+  39 : _t20 = int2char(_t19)
+  40 : grade = _t20
+  41 : _t21 = 2
+  42 : _t22 = number1 << _t21
+  43 : bananas = _t22
+  44 : _t23 = 1
+  45 : _t24 = number2 << _t23
+  46 : apples = _t24
+  47 : param apples
+  48 : param pi
+  49 : _t25 = call printMessage, 2
+  50 : _t26 = 0
+  51 : return _t26
+  52 : funcend main

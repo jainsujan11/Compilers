@@ -6,7 +6,7 @@ QuadArray Q;
 Symboltable *ST;
 SymtabStack STS;
 Symbol *curr_symbol;
-char *variable_type;
+string variable_type;
 vector<Label> label_table; // table to store the labels
 long long int table_count; // Number of nested tables
 
@@ -162,7 +162,6 @@ Symbol *Symboltable::gentemp(SymbolType *_type)
 // Update function to update the symbol table offsets
 void Symboltable::update()
 {
-    // cout << "ST->update called\n";
     int off = 0;
     for (Symbol * c : this->symbols)
     {
@@ -174,7 +173,6 @@ void Symboltable::update()
             c->nested_table->update();
         }
     }
-    // cout << "ST->update ended\n";
 }
 
 // Symboltable print function
