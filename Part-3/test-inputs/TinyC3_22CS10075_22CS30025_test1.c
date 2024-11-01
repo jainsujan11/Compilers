@@ -34,6 +34,9 @@ int main() {
     numbers[6] = 100;
     int length = 7;
     customSort(numbers, length);
-
+    int x = 0;
+    if(1){
+        x = 2;
+    }
     return 0;
 }
